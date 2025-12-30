@@ -2,9 +2,7 @@ import dotenv from "dotenv"
 import connectDB from "./db/index.js";
 import app from "./App.js";
 
-
 dotenv.config()
-
 
 connectDB().
 then(()=>{
@@ -20,14 +18,7 @@ then(()=>{
     console.log("MongoDB Connection Failed!!!",e)
 })
 
-
-
-
-
-
-
 /*
-
 const app = express()
 (async()=>{
     try{
@@ -46,6 +37,4 @@ const app = express()
         throw error
     }
 })()
-
-
 */
