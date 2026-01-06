@@ -15,7 +15,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Empty Fields Must be Filled!");
   }
 
-  const existedUser = User.findOne({
+  console.log("files:", req.files);
+
+  const existedUser = await User.findOne({
     $or: [{ userName }, { email }],
   });
 
@@ -39,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400,"Avatar is not Uploaded!");
   }
 
-  const User = await User.create({
+  const user = await User.create({
     fullName,
     avatar: avatar.url,
     cpverImage: coverImage.url?.url || "",
@@ -48,11 +50,11 @@ const registerUser = asyncHandler(async (req, res) => {
     userName: userName.toLowerCase()
   });
 
-  const createdUser = User.findById(user._id).select(
+  const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   )
 
-  if(createdUser){
+  if(!createdUser){
     throw new ApiError(500,"Something Wrong while Registering User")
   }
 
