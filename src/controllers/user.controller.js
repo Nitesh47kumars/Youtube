@@ -12,10 +12,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     user.refreshToken = refreshToken;
 
-    await user.save({ ValidateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
   } catch (err) {
+    console.error("JWT Error details:", err);
     throw new ApiError(500, "Something Wrong While Generating Tokens");
   }
 };
@@ -93,7 +94,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { userName, email, password } = req.body;
 
-  if (!userName || !email) {
+  if (!(userName || email) || !password) {
     throw new ApiError(400, "UserName And email Required!");
   }
 
@@ -115,7 +116,9 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  const loggedInUser = User.findById(user.Id).select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
   const options = {
     httpOnly: true,
@@ -124,15 +127,13 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken.options)
+    .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
         200,
         {
           user: loggedInUser,
-          accessToken,
-          refreshToken,
         },
         "User LoggedIn Successfully!"
       )
@@ -145,9 +146,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     {
       $set: { refreshToken: undefined },
     },
-    {
-      new: true,
-    }
+    { new: true }
   );
 
   const options = {

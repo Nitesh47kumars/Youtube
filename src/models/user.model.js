@@ -32,10 +32,13 @@ const userSchema = new Schema(
         coverImage:{
             type: String
         },
-        watchHistroy:{
-            type: Schema.Types.ObjectId,
-            ref: "Video"
-        },
+        watchHistory: [
+            {
+                type: [Schema.Types.ObjectId],
+                ref: "Video",
+                default:[]
+            }
+        ],        
         password:{
             type: String,
             required:[true,"Password is Required."]
@@ -50,13 +53,15 @@ userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return;
 
     this.password = await bcrypt.hash(this.password, 10)
+    return;
 })
 
 userSchema.methods.isPasswordCorrect = async function (password){
     return await bcrypt.compare(password,this.password)
 }
 
-userSchema.methods.generateAccessToken = async function (){
+// Remove 'async' from both methods
+userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -71,7 +76,7 @@ userSchema.methods.generateAccessToken = async function (){
     )
 }
 
-userSchema.methods.generateRefreshToken = async function (){
+userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id
