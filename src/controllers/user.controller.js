@@ -81,7 +81,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   return res
-    .status(201)
+    .status(200)
     .json(new ApiResponse(200, createdUser, "User Registered Successfully!"));
 });
 
@@ -430,9 +430,6 @@ const getWactchHistory = asyncHandler(async (req, res) => {
       },
     },
   ]);
-
-  console.log("WatchHistory:",user);
-
   return res
   .status(200)
   .json(new ApiResponse(200,user[0].wactchHistory,"watch History Fetch Successfully!"))

@@ -14,8 +14,6 @@ const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
       folder: "youtube/users",
     });
-
-    // console.log("File Uploaded:",response.url);
     fs.unlinkSync(localFilePath);
     return response;
   } catch (error) {
