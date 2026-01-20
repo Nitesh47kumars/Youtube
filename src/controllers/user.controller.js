@@ -95,8 +95,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { userName, email, password } = req.body;
 
-  if (!(userName || email) || !password) {
-    throw new ApiError(400, "UserName And email Required!");
+  if (!((userName || email) && password)) {
+    throw new ApiError(401, "UserName,Email,password Required!");
   }
 
   const user = await User.findOne({
@@ -145,7 +145,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: { refreshToken: undefined },
+      $unset: { refreshToken: 1 },
     },
     { new: true }
   );
@@ -159,11 +159,12 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User Logged Out Successfully!"));
+    .json(new ApiResponse(200, {}, "User Logged-Out Successfully!"));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken;
+  console.log(incomingRefreshToken)
 
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Un-Authorized Access");
